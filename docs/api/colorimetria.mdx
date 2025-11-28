@@ -1,0 +1,184 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Endpoints — Colorimetria
+## POST /colorimetria/analizar
+
+### Request
+
+**Headers obligatorios**
+- Authorization: `Bearer <token_backend>`
+- Content-Type: `multipart/form-data`
+
+**Body (multipart/form-data)**  
+- **foto**: *File* (obligatorio)
+
+El archivo debe incluir:
+- `foto.buffer` → binario  
+- `foto.originalname` → nombre del archivo  
+- `foto.mimetype` → `image/jpeg`, `image/png`, etc.
+
+
+### Response
+<Tabs> <TabItem value="200" label="200">
+#### Imagen procesada por IA (n8n)
+```json
+{
+  "statusCode": 200,
+  "message": "Análisis de colorimetría completado correctamente.",
+  "data": {
+    "color_piel": ["…"],
+    "color_pelo": ["…"],
+    "estacion": ["…"],
+    "sub_estacion": ["…"],
+    "paletas": [],
+    "imagen_persona": "url de la imagen"
+  }
+}
+```
+</TabItem> <TabItem value="400" label="400">
+#### No se envió archivo foto
+```json
+{
+  "statusCode": 400,
+  "message": "Debe adjuntar una imagen en el campo \"foto\".",
+  "error": "Bad Request"
+}
+
+```
+</TabItem> <TabItem value="401" label="401">
+#### Error proveniente del backend (JWT inválido)
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+
+```
+</TabItem> <TabItem value="502" label="502">
+#### Error externo al llamar al webhook de n8n
+```json
+{
+  "statusCode": 502,
+  "message": "Error al comunicarse con el flujo de IA (n8n).",
+  "error": "Bad Gateway"
+}
+
+```
+</TabItem> </Tabs> 
+
+## POST /colorimetria/guarda
+**Descripción**: Almacena la colorimetría final del usuario.
+
+**Headers obligatorios**
+- Authorization: `Bearer <token_backend>`
+- Content-Type: `application/json`
+
+**Body (application/json)** 
+
+### Request
+<Tabs> <TabItem value="1" label="Ejemplo">
+```json
+{
+  "color_piel": "Beige Melocotón",
+  "color_pelo": "Castaño Oscuro",
+  "color_ojos": "Avellana",
+  "color_cejas": "Café Medio",
+  "estacion": "Otoño",
+  "sub_estacion": "Suave",
+  "imagen_persona": null,
+  "colores": {}
+}
+
+```
+</TabItem> <TabItem value="2" label="Formato">
+```json
+{
+  "color_piel": "string",
+  "color_pelo": "string",
+  "color_ojos": "string",
+  "color_cejas": "string",
+  "estacion": "string",
+  "sub_estacion": "string",
+  "imagen_persona": "string or null",
+  "colores": {}  
+}
+
+
+```
+</TabItem> </Tabs> 
+
+### Response
+<Tabs> <TabItem value="201" label="201">
+#### Guardado exitoso en la tabla colorimetria
+```json
+{
+  "statusCode": 201,
+  "message": "Colorimetría guardada correctamente.",
+  "data": {
+    "id_colorimetria": "uuid",
+    "usuario_id": "uuid",
+    "color_piel": "…",
+    "color_pelo": "…",
+    "color_ojos": "…",
+    "color_cejas": "…",
+    "estacion": "…",
+    "sub_estacion": "…",
+    "imagen_persona": null,
+    "colores": {},
+    "timestamp": "2025-11-26T10:15:00Z"
+  }
+}
+
+```
+</TabItem> <TabItem value="401" label="401">
+#### Error del backend: JWT inválido
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+
+```
+</TabItem> <TabItem value="403" label="403">
+#### Error del backend: falta el token RLS
+```json
+{
+  "statusCode": 403,
+  "message": "Token de Supabase no encontrado en la sesión.",
+  "error": "Forbidden"
+}
+
+```
+</TabItem> <TabItem value="409" label="409">
+#### Existe un registro previo (relación 1:1)
+```json
+{
+  "statusCode": 409,
+  "message": "El usuario ya posee una colorimetría registrada.",
+  "error": "Conflict"
+}
+
+```
+</TabItem> <TabItem value="500" label="500">
+#### Error de Supabase al verificar registro previo
+```json
+{
+  "statusCode": 500,
+  "message": "Error al verificar colorimetría existente.",
+  "error": "Internal Server Error"
+}
+
+```
+</TabItem> <TabItem value="500.1" label="500">
+#### Error al insertar en Supabase (RLS o datos inválidos)
+```json
+{
+  "statusCode": 500,
+  "message": "Error al guardar la colorimetría en Supabase.",
+  "error": "Internal Server Error"
+}
+
+```
+
+</TabItem> </Tabs> 

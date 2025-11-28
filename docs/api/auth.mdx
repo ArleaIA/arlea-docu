@@ -1,0 +1,173 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Endpoints — Autenticación
+
+## POST /auth/register
+
+### Request
+<Tabs> <TabItem value="1" label="Ejemplo">
+```json
+{ 
+  "email": "alex@example.com", 
+  "password": "12345678", 
+  "name": "Alex Santana", 
+  "country": "Chile", 
+  "gender": "Masculino", 
+  "birthDate": "2001-10-15" 
+}
+```
+</TabItem> <TabItem value="2" label="Formato">
+```json
+{
+  "email": "string",
+  "password": "string",
+  "name": "string",
+  "country": "string",
+  "gender": "string",
+  "birthDate": "YYYY-MM-DD" 
+}
+```
+</TabItem> </Tabs> 
+### Response
+
+<Tabs> <TabItem value="201" label="201">
+#### Registro exitoso en Supabase y tabla temporal
+```json
+
+{
+  "statusCode": 201,
+  "message": "Usuario registrado exitosamente. Verifique su correo.",
+  "data": {
+    "id_usuario": "uuid",
+    "email": "usuario@example.com",
+    "nombre": "Nombre",
+    "estado": "pendiente"
+  }
+}
+
+```
+</TabItem> <TabItem value="400" label="400">
+#### Datos inválidos enviados por el cliente
+```json
+
+{
+  "statusCode": 400,
+  "message": [
+    "email must be an email",
+    "password must be at least 6 characters"
+  ],
+  "error": "Bad Request"
+}
+
+```
+</TabItem> <TabItem value="409" label="409">
+#### Error de Supabase Auth: email duplicado
+```json
+{
+  "statusCode": 409,
+  "message": "El correo ya está registrado.",
+  "error": "Conflict"
+}
+
+```
+</TabItem> <TabItem value="500" label="500">
+#### Error interno inesperado en Supabase Auth
+```json
+{
+  "statusCode": 500,
+  "message": "No se pudo crear el usuario en Supabase",
+  "error": "Internal Server Error"
+}
+
+```
+</TabItem> <TabItem value="501" label="500">
+#### Error al insertar en usuarios_pendientes
+```json
+{
+  "statusCode": 500,
+  "message": "Error al guardar los datos del usuario pendiente",
+  "error": "Internal Server Error"
+}
+
+```
+
+</TabItem> </Tabs> 
+
+## POST /auth/login
+### Request
+<Tabs> <TabItem value="1" label="Ejemplo">
+```json
+{
+  "email": "usuario@example.com",
+  "password": "12345678"
+}
+```
+</TabItem> <TabItem value="2" label="Formato">
+```json
+{
+  "email": "string",
+  "password": "string",
+}
+```
+</TabItem> </Tabs> 
+### Response
+<Tabs> <TabItem value="200" label="200">
+#### Login correcto y entrega tokens
+```json
+{
+  "statusCode": 200,
+  "message": "Inicio de sesión exitoso.",
+  "data": {
+    "access_token_backend": "<jwt_backend>",
+    "usuario": {
+      "id_usuario": "uuid",
+      "nombre": "Nombre",
+      "email": "usuario@example.com"
+    }
+  }
+}
+
+```
+</TabItem> <TabItem value="401" label="401">
+#### Login incorrecto (password o email)
+```json
+{
+  "statusCode": 401,
+  "message": "Credenciales inválidas.",
+  "error": "Unauthorized"
+}
+
+```
+</TabItem> <TabItem value="403" label="403">
+#### Usuario no ha validado email
+```json
+{
+  "statusCode": 403,
+  "message": "Debe confirmar su correo electrónico antes de iniciar sesión.",
+  "error": "Forbidden"
+}
+
+```
+</TabItem> <TabItem value="404" label="404">
+#### Usuario no existe en tabla usuario
+```json
+{
+  "statusCode": 404,
+  "message": "No se encontraron los datos del usuario en la base de datos.",
+  "error": "Not Found"
+}
+
+```
+</TabItem> <TabItem value="500" label="500">
+#### Error inesperado en servicio o Supabase
+```json
+{
+  "statusCode": 500,
+  "message": "Error interno del servidor.",
+  "error": "Internal Server Error"
+}
+
+```
+
+</TabItem> </Tabs> 

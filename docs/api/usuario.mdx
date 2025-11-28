@@ -1,0 +1,125 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Endpoints — Usuario
+
+## GET /usuario/me
+### Request
+
+**Headers obligatorios**
+- Authorization: `Bearer <token_backend>`
+
+**Body**  
+- No requiere
+### Response
+<Tabs> <TabItem value="200" label="200">
+#### Operación exitosa, se retorna el perfil del usuario
+```json
+{
+  "statusCode": 200,
+  "message": "Perfil de usuario obtenido correctamente.",
+  "data": {
+    "id_usuario": "uuid",
+    "nombre": "Alex Santana",
+    "genero": "Masculino",
+    "pais": "Chile",
+    "fecha_nacimiento": "2001-10-15"
+  }
+}
+```
+</TabItem> <TabItem value="401" label="401">
+#### Error proveniente del backend: JWT inválido, ausente o expirado (JwtAuthGuard)
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+
+```
+</TabItem> <TabItem value="404" label="404">
+#### No existe un registro del usuario en la tabla usuario
+```json
+{
+  "statusCode": 404,
+  "message": "<mensaje de Supabase, ej: 'No rows found'>",
+  "error": "Not Found"
+}
+
+```
+</TabItem> </Tabs> 
+
+## PATCH /usuario/me
+### Request
+**Headers obligatorios**
+- Authorization: `Bearer <token_backend>`
+
+**Body**  
+<Tabs> <TabItem value="200" label="Ejemplo">
+```json
+{
+  "nombre": "Alex Santana",
+  "genero": "Masculino",
+  "pais": "Chile"
+}
+```
+</TabItem> <TabItem value="401" label="Formato">
+```json
+{
+  "nombre": "string",
+  "genero": "string",
+  "pais": "string",
+  "fecha_nacimiento": "YYYY-MM-DD"
+}
+```
+</TabItem> </Tabs> 
+### Response
+<Tabs> <TabItem value="200" label="200">
+#### Operación exitosa, los datos del usuario fueron actualizados
+```json
+{
+  "statusCode": 200,
+  "message": "Datos personales actualizados correctamente."
+}
+
+```
+</TabItem> <TabItem value="401" label="401">
+#### Error proveniente de supabase (token invalido)
+```json
+{
+  "statusCode": 401,
+  "message": "Token de Supabase inválido o expirado",
+  "error": "Unauthorized"
+}
+
+```
+</TabItem> <TabItem value="401.1" label="401">
+#### Error de token de backend invalido
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+
+```
+</TabItem> <TabItem value="400" label="400">
+#### Error proveniente de Supabase: datos inválidos al actualizar
+```json
+{
+  "statusCode": 400,
+  "message": "<mensaje de error supabase>",
+  "error": "Bad Request"
+}
+
+```
+</TabItem> <TabItem value="400.1" label="400">
+#### El body no contiene ningún campo válido para actualizar
+```json
+{
+  "statusCode": 400,
+  "message": "No se enviaron datos para actualizar.",
+  "error": "Bad Request"
+}
+
+```
+
+</TabItem> </Tabs> 
