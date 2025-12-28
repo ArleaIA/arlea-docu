@@ -39,3 +39,10 @@ Bienvenido a la documentación técnica oficial del proyecto **Arlea**.
 - [Arquitectura del Worker](workers/arquitectura.md)
 - [Normalización de Datos](workers/normalizacion.md)
 - [Manejo de Errores](workers/manejo-errores.md)
+
+### 5. Base de Datos
+- [Modelo Entidad-Relación (Conceptual)](BaseDeDatos/entidadrelacion.md)
+- [Modelo Relacional](BaseDeDatos/modeloRelacional.md)
+- [Diagrama de Secuencia — Confirmación de Usuario](BaseDeDatos/confirmarusuario.md)
+- [Diagrama de Secuencia — Actualización Automática de Timestamp en Producto](BaseDeDatos/timestampProducto.md)
+- [Diagrama de Secuencia — RPC obtener_tipos_producto()](BaseDeDatos/obtenerProductos.md)
