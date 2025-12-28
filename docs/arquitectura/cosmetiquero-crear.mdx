@@ -1,0 +1,39 @@
+# Diagrama de Secuencia — Crear Cosmetiquero
+
+## Descripción
+
+Este diagrama describe el flujo para crear un nuevo cosmetiquero mediante el endpoint POST /cosmetiquero.
+Incluye validaciones previas, persistencia del cosmetiquero y retorno del objeto creado.
+El objetivo es permitir a usuarios o influencers crear colecciones personalizadas de productos.
+
+![Diagrama de Secuencia de Crear Cosmetiquero](/img/secuencia-cosmetiquero.png)
+
+
+## Componentes involucrados
+- Frontend
+- CosmetiqueroController
+- CosmetiqueroService
+- Supabase 
+- CommonUtils
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud POST /cosmetiquero con el DTO del cosmetiquero.
+2. El CosmetiqueroController recibe la request y valida el payload.
+3. El CosmetiqueroController delega la creación al CosmetiqueroService mediante create(dtoCosmetiquero).
+4. El CosmetiqueroService realiza validaciones usando Common Utils.
+5. El CosmetiqueroService inserta el cosmetiquero en Supabase.
+6. Supabase confirma la operación exitosamente.
+7. El CosmetiqueroService retorna el cosmetiquero creado al Controller.
+8. El CosmetiqueroController responde al Frontend con el resultado.
+
+## Consideraciones técnicas
+
+- El endpoint requiere autenticación.
+- Las validaciones se centralizan en el service.
+- La creación es atómica.
+- El modelo soporta asociación futura de productos.
+## Observaciones
+- Puede extenderse para crear cosmetiqueros públicos o privados.
+- Permite integrar flujos de influencers.
+- Base para operaciones posteriores (update, delete, compartir).

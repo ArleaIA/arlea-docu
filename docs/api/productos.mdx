@@ -1,0 +1,161 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Endpoints — Productos
+
+## GET /productos
+
+### Request
+
+**Query Params**  
+- page (number) → página actual (default: 1)
+- limit (number) → cantidad de productos por página (default: 20)
+- q(string) → término de búsqueda (opcional)
+- marca(string) → marca del producto (opcional)
+- tipo(string) → tipo de producto (opcional)
+- oferta(boolean) → productos en oferta (opcional)
+
+### Response
+
+<Tabs>
+  <TabItem value="200" label="200">
+    <p><strong>Operación exitosa, listado paginado de productos</strong></p>
+
+    ```json
+    {
+      "page": 1,
+      "limit": 20,
+      "total": 2,
+      "data": [
+        {
+          "id_producto": "0267dc06-851f-4675-afe4-a33269714945",
+          "nombre": "Labial Matte SuperStay",
+          "imagen_producto": "https://...",
+          "tipo": "Labios",
+          "marca": "Maybelline",
+          "colores": ["#b23a48", "#8c1d18"]
+        },
+        {
+          "id_producto": "43375f61-92cd-4b4f-8481-fb78ad95ee4b",
+          "nombre": "Labial Vinyl Ink",
+          "imagen_producto": "https://...",
+          "tipo": "Labios",
+          "marca": "Maybelline",
+          "colores": ["#a52a2a"]
+        }
+      ]
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="500" label="404 / 500">
+    <p><strong>Error obteniendo productos</strong></p>
+
+    ```json
+    {
+      "statusCode": 500,
+      "message": "Error obteniendo productos"
+    }
+    ```
+  </TabItem>
+</Tabs>
+## GET /producto/:id
+
+### Request
+
+**Params**
+- id: uuid (id del producto)
+
+---
+
+### Response
+
+<Tabs>
+  <TabItem value="200" label="200">
+    <p><strong>Detalle completo del producto con precios por tienda</strong></p>
+
+    ```json
+    {
+      "nombre": "Labial Matte SuperStay",
+      "marca": "Maybelline",
+      "categoria": "Labios",
+      "url_imagen": "https://...",
+      "colores": ["#b23a48", "#8c1d18"],
+      "precio": [
+        {
+          "tienda": "DBS",
+          "url_producto_tienda": "https://...",
+          "valor": 9990,
+          "valor_descuento": 7990
+        },
+        {
+          "tienda": "Preunic",
+          "url_producto_tienda": "https://...",
+          "valor": 10490,
+          "valor_descuento": null
+        }
+      ]
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="404" label="404">
+    <p><strong>Producto no encontrado</strong></p>
+
+    ```json
+    {
+      "statusCode": 404,
+      "message": "Producto no encontrado",
+      "error": "Not Found"
+    }
+    ```
+  </TabItem>
+</Tabs>
+## GET /producto/metadata/categorias
+
+### Request
+No requiere
+
+---
+
+### Response
+
+<Tabs>
+  <TabItem value="200" label="200">
+    <p><strong>Listado de categorías disponibles</strong></p>
+
+    ```json
+    [
+      "Rostro",
+      "Ojos",
+      "Labios",
+      "Uñas",
+      "Cuidado Facial"
+    ]
+    ```
+  </TabItem>
+</Tabs>
+## GET /producto/metadata/marcas
+
+### Request
+No requiere
+
+---
+
+### Response
+
+<Tabs>
+  <TabItem value="200" label="200">
+    <p><strong>Listado de marcas disponibles</strong></p>
+
+    ```json
+    [
+      "Maybelline",
+      "L'Oréal",
+      "Revlon",
+      "MAC",
+      "Essence"
+    ]
+    ```
+  </TabItem>
+</Tabs>

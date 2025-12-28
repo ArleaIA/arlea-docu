@@ -9,7 +9,17 @@ Bienvenido a la documentación técnica oficial del proyecto **Arlea**.
 ## Contenido principal
 
 ### 1. Arquitectura
-- [Arquitectura General](arquitectura/arquitectura-general.mdx)
+- [Arquitectura API](arquitectura/arquitectura-Api.mdx)
+- [Módulo Auth](arquitectura/modulo-auth.mdx)
+- [Módulo Usuario](arquitectura/modulo-usuario.mdx)
+- [Colorimetría — Crear análisis](arquitectura/colorimetria.mdx)
+- [Colorimetría — Obtener análisis](arquitectura/colorimetria-obtener.mdx)
+- [Cosmetiquero — Crear](arquitectura/cosmetiquero-crear.mdx)
+- [Cosmetiquero — Listar](arquitectura/cosmetiquero-listar.mdx)
+- [Influencer](arquitectura/influencer.mdx)
+- [Productos — Búsqueda](arquitectura/productos-busqueda.mdx)
+- [Productos — Detalle](arquitectura/productos-detalle.mdx)
+
 
 ### 2. Casos de Uso
 - [Auth](casos-de-uso/auth.md)
@@ -21,16 +31,11 @@ Bienvenido a la documentación técnica oficial del proyecto **Arlea**.
 - [Auth](api/auth.mdx)
 - [Usuario](api/usuario.mdx)
 - [Colorimetría](api/colorimetria.mdx)
-- [Productos](api/productos.md)
-- HOLA MUNDO    s
-{/*
-### 4. Procesos y Workers
-- [Worker ETL](workers/worker-etl.md)
-- [Normalización de Productos](workers/normalizacion.md)
-- [Manejo de Errores](workers/manejo-errores.md)
+- [Productos](api/productos.mdx)
+- [Cosmetiquero](api/cosmetiquero.mdx)
+- [Influencer](api/influencer.mdx)
 
-### 5. Despliegue
-- [Docker](despliegue/docker.md)
-- [Variables de Entorno](despliegue/variables-entorno.md)
-- [Supabase](despliegue/supabase.md)
-*/}
+### 4. Worker
+- [Arquitectura del Worker](workers/arquitectura.md)
+- [Normalización de Datos](workers/normalizacion.md)
+- [Manejo de Errores](workers/manejo-errores.md)

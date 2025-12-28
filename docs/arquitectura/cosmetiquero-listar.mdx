@@ -1,0 +1,39 @@
+# Diagrama de Secuencia — Listar Cosmetiqueros
+
+## Descripción
+
+Este diagrama describe el flujo para obtener un listado de cosmetiqueros mediante el endpoint GET /cosmetiquero.
+El sistema consulta los cosmetiqueros junto con sus productos asociados y retorna el resultado al frontend.
+El objetivo es exponer colecciones de cosmetiqueros de forma estructurada y reutilizable.
+
+![Diagrama de Secuencia de Listar Cosmetiqueros](/img/secuencia-cosmetiquero-get.png)
+
+
+## Componentes involucrados
+- Frontend
+- CosmetiqueroController
+- CosmetiqueroService
+- Supabase 
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud GET /cosmetiquero.
+2. El CosmetiqueroController recibe la request y construye los parámetros de búsqueda.
+3. El CosmetiqueroController delega la operación al CosmetiqueroService mediante find(query).
+4. El CosmetiqueroService ejecuta una consulta en Supabase para obtener cosmetiqueros y sus productos asociados.
+5. Supabase retorna los datos solicitados.
+6. El CosmetiqueroService devuelve el listado de cosmetiqueros al Controller.
+7. El CosmetiqueroController responde al Frontend con el resultado.
+
+## Consideraciones técnicas
+
+- El endpoint puede ser público o filtrado según reglas de visibilidad.
+- Las relaciones N:M se resuelven en la consulta.
+- El servicio encapsula toda la lógica de acceso a datos.
+- El flujo es compatible con paginación y filtros futuros.
+
+## Observaciones
+
+- Puede extenderse para ordenar por popularidad o fecha.
+- Permite reutilización para vistas públicas o privadas.
+- Es base para integración con influencers.

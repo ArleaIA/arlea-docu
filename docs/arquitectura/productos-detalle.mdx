@@ -1,0 +1,38 @@
+# Diagrama de Secuencia — Obtener Detalle de Producto
+
+## Descripción
+
+Este diagrama describe el flujo para obtener el detalle completo de un producto específico mediante el endpoint GET /producto/:id.
+Incluye la recuperación del producto base y sus relaciones con tiendas, consolidando la información en un DTO de salida.
+El objetivo es entregar una vista unificada del producto para su visualización en frontend.
+
+![Diagrama de Secuencia de Obtener Detalle de Producto](/img/secuencia-producto-detalle.png)
+
+
+## Componentes involucrados
+- Frontend
+- ProductsController
+- ProductsService
+- Supabase 
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud GET /producto/:id.
+2. El ProductsController recibe la request y valida el parámetro id.
+3. El ProductsController delega la operación al ProductsService mediante getDetail(id).
+4. El ProductsService ejecuta una consulta a Supabase para obtener el producto y su relación con tiendas (producto + producto_tienda).
+5. Supabase retorna el producto junto con la información de las tiendas asociadas.
+6. El ProductsService transforma los datos en un ProductDetailDto.
+7. El ProductsController responde al Frontend con el detalle completo del producto.
+
+## Consideraciones técnicas
+
+- El DTO desacopla el modelo de base de datos del response público.
+- Las relaciones N:M se resuelven en una única consulta.
+- El endpoint es público y no requiere autenticación.
+- La lógica de composición del response reside en el service, no en el controller.
+## Observaciones
+
+- El flujo es extensible para incluir reviews, ratings u otros metadatos.
+- Puede optimizarse mediante caching si el tráfico es alto.
+- El DTO permite controlar qué campos se exponen al cliente.

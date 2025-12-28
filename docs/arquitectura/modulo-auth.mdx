@@ -1,0 +1,45 @@
+# Diagrama de Secuencia — Autenticación con JWT y Supabase
+
+## Descripción
+
+Este diagrama representa el flujo de autenticación de usuarios en la API NestJS utilizando Supabase Auth y JWT.
+Describe cómo el Frontend obtiene un token de acceso y cómo dicho token es validado en solicitudes posteriores mediante un guard.
+El objetivo es asegurar acceso controlado a los endpoints protegidos sin exponer directamente Supabase al cliente.
+
+![Diagrama de Secuencia de Autenticación con JWT y Supabase](/img/secuencia-auth.png)
+
+
+## Componentes involucrados
+- Frontend
+- AuthController
+- AuthService
+- Supabase Auth
+- JwtAuthGuard
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud POST /auth/login con las credenciales del usuario.
+2. El AuthController recibe la petición y delega la lógica al AuthService.
+3. El AuthService llama a Supabase Auth mediante signInWithPassword.
+4. Supabase Auth valida las credenciales y retorna un access_token.
+5. El AuthService transforma o encapsula el token en un JWT de uso interno.
+6. El AuthController responde al Frontend con el token JWT.
+7. El Frontend realiza solicitudes posteriores incluyendo el JWT en el header Authorization.
+8. El JwtAuthGuard intercepta la request y valida el token.
+9. Supabase Auth confirma la validez del token.
+10. Si el token es válido, se permite el acceso al recurso protegido.
+
+## Consideraciones técnicas
+
+- El Frontend nunca interactúa directamente con Supabase Auth.
+- El JwtAuthGuard actúa como capa de seguridad transversal para endpoints protegidos.
+- El JWT se envía vía header Authorization: `Bearer <token>`.
+- El flujo permite desacoplar la autenticación del dominio de negocio.
+- La validación del token es centralizada y reutilizable.
+
+## Observaciones
+
+- Este diseño facilita cambiar el proveedor de autenticación en el futuro.
+- Es compatible con refresh tokens y rotación de credenciales.
+- Permite extender el guard para roles o permisos.
+- El flujo es consistente tanto para Web como Mobile.

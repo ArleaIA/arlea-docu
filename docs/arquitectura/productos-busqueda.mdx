@@ -1,0 +1,39 @@
+# Diagrama de Secuencia — Motor de Búsqueda de Productos
+
+## Descripción
+
+Este diagrama representa el flujo del motor de búsqueda de productos mediante el endpoint GET /producto.
+Permite filtrar productos por texto, marca y tipo, aplicando normalización previa y paginación.
+El objetivo es ofrecer búsquedas flexibles y eficientes sobre el catálogo de productos.
+
+![Diagrama de Secuencia de Motor de Búsqueda de Productos](/img/secuencia-productos-motor.png)
+
+
+## Componentes involucrados
+- Frontend
+- ProductsController
+- ProductsService
+- CommonUtils
+- Supabase 
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud GET /producto con parámetros de búsqueda (q, marca, tipo, page, limit).
+2. El ProductsController recibe la request y construye el objeto de consulta.
+3. El ProductsController delega la búsqueda al ProductsService mediante search(query).
+4. El ProductsService utiliza Common Utils para normalizar los textos de búsqueda.
+5. El ProductsService ejecuta una consulta RPC o SELECT en Supabase aplicando los filtros.
+6. Supabase retorna el listado de productos coincidentes.
+7. El ProductsService procesa el resultado y aplica paginación.
+8. El ProductsController responde al Frontend con el listado paginado de productos.
+## Consideraciones técnicas
+
+- La normalización evita inconsistencias por mayúsculas, tildes o caracteres especiales.
+- La paginación se controla desde el backend para proteger la base de datos.
+- El motor puede usar funciones RPC para mejorar performance.
+- Common Utils centraliza lógica reutilizable entre módulos.
+## Observaciones
+
+- El motor es extensible para filtros adicionales (oferta, rango de precio, colores).
+- Compatible con ordenamientos dinámicos.
+- Preparado para indexación y optimización a nivel SQL.

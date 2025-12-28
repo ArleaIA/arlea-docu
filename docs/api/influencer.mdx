@@ -1,0 +1,126 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Endpoints — Influencer
+
+## GET /influencer
+**Descripción**
+
+- Obtiene el listado de influencers disponibles en el sistema.
+
+### Request
+
+- No requiere body
+
+- No requiere parámetros
+## Response
+<Tabs> <TabItem value="200" label="200">
+#### Retorna un listado de influencers con su información básica.
+```json
+{
+  "statusCode": 200,
+  "message": "Influencers obtenidos correctamente",
+  "data": [
+    {
+      "id_influencer": "uuid",
+      "nombre": "Nombre Influencer",
+      "imagen_perfil": "https://...",
+      "redes_sociales": {
+        "instagram": "https://instagram.com/...",
+        "tiktok": "https://tiktok.com/..."
+      }
+    }
+  ]
+}
+
+```
+</TabItem> </Tabs>
+## GET /influencer/:id
+### Request
+**Descripción**
+
+- Obtiene el detalle de un influencer específico.
+
+### Request
+
+**Params**
+
+- id (UUID) → identificador del influencer
+
+### Response
+<Tabs> <TabItem value="200" label="200">  
+#### Influencer encontrado
+```json
+{
+  "statusCode": 200,
+  "message": "Influencer obtenido correctamente",
+  "data": {
+    "id_influencer": "uuid",
+    "nombre": "Nombre Influencer",
+    "imagen_perfil": "https://...",
+    "redes_sociales": {
+      "instagram": "https://instagram.com/...",
+      "tiktok": "https://tiktok.com/..."
+    }
+  }
+}
+
+```
+</TabItem> <TabItem value="404" label="404">
+```json 
+{
+  "statusCode": 404,
+  "message": "Influencer no encontrado"
+}
+
+```
+</TabItem> </Tabs>
+
+## GET /influencer/:id/cosmetiquero
+**Descripción**
+
+Obtiene los cosmetiqueros públicos asociados a un influencer.
+Solo se retornan cosmetiqueros donde:
+- influencer_id = :id
+- publico = true
+
+### Request
+
+**Path Params**
+
+- id (UUID) → identificador del influencer
+### Response
+
+<Tabs>
+  <TabItem value="200" label="200">
+    <p><strong>Listado de cosmetiqueros públicos asociados al influencer</strong></p>
+
+    ```json
+    {
+      "statusCode": 200,
+      "message": "Cosmetiqueros del influencer obtenidos correctamente",
+      "data": [
+        {
+          "id_cosmetiquero": "uuid",
+          "nombre": "Rutina Mañana Piel Mixta",
+          "descripcion": "Productos recomendados para uso diario",
+          "publico": true,
+          "timestamp": "2025-01-01T12:00:00Z"
+        }
+      ]
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="404" label="404">
+    <p><strong>Influencer no encontrado o sin cosmetiqueros públicos</strong></p>
+
+    ```json
+    {
+      "statusCode": 404,
+      "message": "Influencer no encontrado"
+    }
+
+    ```
+  </TabItem>
+</Tabs>

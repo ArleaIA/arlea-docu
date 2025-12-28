@@ -1,0 +1,46 @@
+# Diagrama de Componentes — API
+
+## Descripción
+
+Este diagrama describe la arquitectura de componentes de la API principal desarrollada en NestJS.
+Muestra cómo el Frontend interactúa con los distintos módulos funcionales y cómo estos centralizan el acceso a datos mediante Supabase.
+El diseño prioriza modularidad, reutilización de lógica común y separación clara de responsabilidades.
+
+![Diagrama de componentes de la API NestJS y Supabase](/img/api-componente.png)
+
+
+## Componentes involucrados
+- Frontend Web / Mobile
+- Auth Module
+- Usuario Module
+- Influencer Module
+- Colorimetría Module
+- Productos Module
+- Cosmetiquero Module
+- Supabase Service
+- Common Utils
+- Supabase (PostgreSQL + Auth + RPC)
+
+## Flujo / Comportamiento
+
+1. El Frontend Web o Mobile realiza solicitudes HTTP a la API NestJS.
+2. Las peticiones son enrutas al módulo correspondiente según el dominio funcional.
+3. El Auth Module gestiona autenticación, validación de tokens y contexto de usuario.
+4. Cada módulo de negocio (Usuario, Influencer, Colorimetría, Productos, Cosmetiquero) encapsula su propia lógica.
+5. Los módulos acceden a la base de datos exclusivamente a través del Supabase Service.
+6. El Supabase Service centraliza operaciones SQL, Auth y llamadas RPC.
+7. Common Utils provee funciones compartidas (normalización, helpers, validaciones).
+8. Supabase persiste los datos en PostgreSQL y gestiona autenticación y funciones server-side.
+## Consideraciones técnicas
+
+- La comunicación entre módulos se realiza mediante inyección de dependencias (NestJS DI).
+- El acceso a datos está desacoplado del dominio usando Supabase Service como capa única.
+- Se evita lógica duplicada usando Common Utils compartido entre módulos.
+- Las relaciones complejas y agregaciones se resuelven vía RPC en PostgreSQL.
+- La autenticación no se expone directamente al Frontend, siempre pasa por la API.
+## Observaciones
+
+- La arquitectura facilita agregar nuevos módulos sin impactar los existentes.
+- Permite escalar hacia microservicios si un módulo crece significativamente.
+- Supabase actúa como backend administrado reduciendo carga operativa.
+- El diseño es compatible con workers externos y colas asíncronas futuras.

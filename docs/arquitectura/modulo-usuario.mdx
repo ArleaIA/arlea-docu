@@ -1,0 +1,39 @@
+# Diagrama de Secuencia — Obtener Usuario Autenticado
+
+## Descripción
+
+Este diagrama describe el flujo para obtener la información del usuario autenticado mediante el endpoint GET /usuario/me.
+La API utiliza el contexto del JWT para identificar al usuario y consultar sus datos en Supabase.
+El flujo asegura que el frontend solo acceda a información del usuario actualmente autenticado.
+
+![Diagrama de Secuencia de Obtener Usuario Autenticado](/img/secuencia-usuario.png)
+
+
+## Componentes involucrados
+- Frontend
+- UsuarioController
+- UsuarioService
+- Supabase
+
+## Flujo / Comportamiento
+1. El Frontend envía una solicitud GET /usuario/me incluyendo el JWT en el header Authorization.
+2. El UsuarioController recibe la request y extrae el identificador del usuario desde el contexto de autenticación.
+3. El UsuarioController delega la operación al UsuarioService mediante obtenerUsuario(id).
+4. El UsuarioService ejecuta una consulta SELECT hacia Supabase para obtener los datos del usuario.
+5. Supabase retorna los datos del usuario al UsuarioService.
+6. El UsuarioService devuelve la entidad de usuario al UsuarioController.
+7. El UsuarioController responde al Frontend con la información del usuario autenticado.
+## Consideraciones técnicas
+
+- El endpoint requiere autenticación previa mediante JWT.
+- El id del usuario no se recibe por parámetros, se obtiene desde el token validado.
+- El acceso a base de datos se centraliza en el servicio, no en el controller.
+- Supabase actúa como capa de persistencia y control de datos.
+- El flujo evita exposición de identificadores sensibles en la URL.
+
+## Observaciones
+
+- Este patrón es reutilizable para otros endpoints del tipo /me.
+- Facilita extender la respuesta con relaciones (perfil, preferencias, etc.).
+- Permite aplicar fácilmente DTOs para controlar la forma del response.
+- Compatible con futuras políticas de autorización por rol.

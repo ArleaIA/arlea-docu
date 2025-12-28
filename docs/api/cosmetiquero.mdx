@@ -1,0 +1,114 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Endpoints — Cosmetiquero
+
+## POST /cosmetiquero
+
+### Request
+
+**Headers obligatorios**
+- Authorization: `Bearer <token_backend>`
+
+**Body**
+```json
+{
+  "nombre": "Cosmetiquero Primavera",
+  "descripcion": "Maquillaje recomendado para tonos cálidos",
+  "publico": true
+}
+```
+Response
+<Tabs> <TabItem value="201" label="201">
+<p><strong>Cosmetiquero creado correctamente</strong></p>
+```json
+{
+  "id_cosmetiquero": "uuid",
+  "usuario_id": "uuid",
+  "nombre": "Cosmetiquero Primavera",
+  "descripcion": "Maquillaje recomendado",
+  "publico": true,
+  "timestamp": "2025-01-01T12:00:00Z"
+}
+```
+</TabItem> <TabItem value="400" label="400"> 
+<p><strong>Error de validación</strong></p>
+```json
+{
+  "message": "Datos inválidos"
+}
+```
+</TabItem> </Tabs>
+## GET /cosmetiquero/usuario/:id
+### Request
+**Headers obligatorios**
+
+- Authorization: `Bearer <token_backend>`
+
+**Params**
+
+- id: uuid (id del usuario)
+
+### Response
+<Tabs> <TabItem value="200" label="200">
+<p><strong>Listado de cosmetiqueros del usuario</strong></p>
+```json
+[
+  {
+    "id_cosmetiquero": "uuid",
+    "nombre": "Cosmetiquero Primavera",
+    "descripcion": "Maquillaje recomendado",
+    "publico": true,
+    "cantidad_productos": 3,
+    "timestamp": "2025-01-01T12:00:00Z"
+  }
+]
+```
+</TabItem> </Tabs>
+
+## DELETE /cosmetiquero/:id_cosmetiquero/producto/:id_producto
+### Request
+**Headers obligatorios**
+
+- Authorization: `Bearer <token_backend>`
+
+**Params**
+
+- id_cosmetiquero: uuid
+- id_producto: uuid
+
+### Response
+<Tabs> <TabItem value="200" label="200">
+<p><strong>Producto eliminado del cosmetiquero</strong></p>
+```json
+{
+  "message": "Producto eliminado del cosmetiquero"
+}
+```
+</TabItem> </Tabs>
+## POST /cosmetiquero/:id/productos
+### Request
+**Headers obligatorios**
+
+- Authorization: `Bearer <token_backend>`
+
+**Params**
+
+- id: uuid (id del cosmetiquero)
+
+**Body**
+
+```json
+{
+  "producto_id": "uuid"
+}
+```
+### Response
+<Tabs> <TabItem value="200" label="200">
+<p><strong>Producto agregado al cosmetiquero</strong></p>
+```json
+{
+  "message": "Producto agregado al cosmetiquero"
+}
+```
+</TabItem> </Tabs>

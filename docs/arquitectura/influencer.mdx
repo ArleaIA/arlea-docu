@@ -1,0 +1,39 @@
+# Diagrama de Secuencia — Listar Influencers
+
+## Descripción
+
+Este diagrama representa el flujo para obtener el listado de influencers mediante el endpoint GET /influencer.
+La API consulta la información básica de los influencers y la retorna al frontend.
+El objetivo es exponer perfiles de influencers asociados al ecosistema.
+
+![Diagrama de Secuencia de Listar Influencers](/img/secuencia-influencers.png)
+
+
+## Componentes involucrados
+- Frontend
+- InfluencerController
+- InfluencerService
+- Supabase 
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud GET /influencer.
+2. El InfluencerController recibe la request.
+3. El InfluencerController delega la operación al InfluencerService mediante getInfluencers().
+4. El InfluencerService ejecuta una consulta SELECT influencer en Supabase.
+5. Supabase retorna los datos de los influencers.
+6. El InfluencerService devuelve el listado al Controller.
+7. El InfluencerController responde al Frontend con los influencers.
+
+## Consideraciones técnicas
+
+- El endpoint es típicamente público.
+- El response puede limitar campos mediante DTOs.
+- Preparado para paginación y filtros.
+- La lógica de negocio se mantiene fuera del controller.
+
+## Observaciones
+
+- Puede ampliarse para incluir métricas o rankings.
+- Compatible con endpoints de detalle por influencer.
+- Base para relacionar cosmetiqueros públicos.

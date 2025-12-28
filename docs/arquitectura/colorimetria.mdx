@@ -1,0 +1,42 @@
+# Diagrama de Secuencia — Analizar Colorimetría
+
+## Descripción
+
+Este diagrama describe el flujo para analizar una colorimetría a partir de datos enviados por el usuario mediante el endpoint POST /colorimetria/analizar.
+Incluye la normalización de datos, el registro del análisis y la persistencia del resultado en base de datos.
+El objetivo es generar y almacenar una colorimetría asociada al usuario para su uso posterior.
+
+![Diagrama de Secuencia de Analizar Colorimetría](/img/secuencia-colorimetria.png)
+
+
+## Componentes involucrados
+- Frontend
+- ColorimetríaController
+- ColorimetríaService
+- CommonUtils
+- Supabase 
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud POST /colorimetria/analizar con los datos necesarios para el análisis.
+2. El ColorimetriaController recibe la request y valida el payload.
+3. El ColorimetriaController delega la operación al ColorimetriaService mediante analizar(data).
+4. El ColorimetriaService utiliza Common Utils para normalizar datos y gestionar fechas.
+5. El ColorimetriaService inserta el resultado del análisis en Supabase (INSERT colorimetria).
+6. Supabase confirma la operación con una respuesta exitosa.
+7. El ColorimetriaService retorna el resultado del análisis al Controller.
+8. El ColorimetriaController responde al Frontend con el resultado final.
+
+## Consideraciones técnicas
+
+- El endpoint requiere autenticación previa del usuario.
+- La normalización centralizada evita inconsistencias en los datos almacenados.
+- El análisis queda versionado temporalmente mediante timestamps.
+- La lógica de persistencia reside exclusivamente en el service.
+- El flujo permite extender el análisis sin cambiar el contrato del endpoint.
+
+## Observaciones
+
+- Puede ampliarse para soportar re-análisis o historiales.
+- Es compatible con análisis asistidos por IA.
+- El resultado puede ser reutilizado por otros módulos (makeup, outfit).

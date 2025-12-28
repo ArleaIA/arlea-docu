@@ -1,0 +1,40 @@
+# Diagrama de Secuencia — Obtener Colorimetría Actual
+
+## Descripción
+
+Este diagrama representa el flujo para obtener la colorimetría actual del usuario autenticado mediante el endpoint GET /colorimetria.
+La API identifica al usuario desde el contexto de autenticación y recupera su colorimetría asociada desde Supabase.
+El objetivo es entregar al frontend el último análisis vigente del usuario.
+
+![Diagrama de Secuencia de Obtener Colorimetría Actual](/img/secuencia-colorimetria-get.png)
+
+
+## Componentes involucrados
+- Frontend
+- ColorimetríaController
+- ColorimetríaService
+- Supabase 
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud GET /colorimetria incluyendo el JWT.
+2. El ColorimetriaController recibe la request y obtiene el usuarioId desde el contexto de autenticación.
+3. El ColorimetriaController delega la operación al ColorimetriaService mediante getActual(usuarioId).
+4. El ColorimetriaService ejecuta una consulta en Supabase para obtener la colorimetría asociada al usuario.
+5. Supabase retorna la colorimetría encontrada.
+6. El ColorimetriaService devuelve el resultado al Controller.
+7. El ColorimetriaController responde al Frontend con la colorimetría actual.
+
+## Consideraciones técnicas
+
+- El endpoint no recibe parámetros explícitos de usuario.
+- La consulta se filtra por usuario_id.
+- Se asume una única colorimetría activa por usuario.
+- El acceso está protegido por autenticación.
+- El flujo es consistente con otros endpoints tipo /me.
+
+## Observaciones
+
+- Puede extenderse para retornar historial de colorimetrías.
+- Permite caching para mejorar performance.
+- Es un punto clave para alimentar módulos dependientes (makeup, outfit, cosmetiquero).
