@@ -1,0 +1,52 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Arquitectura — Flujo de Checkout
+
+## Diagrama de flujo 
+
+┌──────────────┐
+│ Cliente App  │
+└──────┬───────┘
+       │ POST /pagos/checkout
+       │ Authorization: Bearer JWT
+       ▼
+┌────────────────────┐
+│ JwtAuthGuard       │
+│ - valida token     │
+│ - extrae usuarioId │
+└─────────┬──────────┘
+          ▼
+┌─────────────────────────────┐
+│ MercadoPagoController       │
+│ - valida plan_id            │
+│ - crea orden_pago (pend.)   │
+└─────────┬───────────────────┘
+          ▼
+┌─────────────────────────────┐
+│ MercadoPagoService          │
+│ - crea preferencia MP       │
+│ - set notification_url      │
+└─────────┬───────────────────┘
+          ▼
+┌─────────────────────────────┐
+│ URL Checkout Mercado Pago   │
+└─────────────────────────────┘
+
+## Persistencia DB (antes del redirect)
+```sql
+INSERT INTO orden_pago (usuario_id, plan_id, monto, estado)
+VALUES (<usuario_id_from_jwt>, <plan_id>, <monto>, 'pendiente')
+RETURNING id_orden;
+```
+
+## Datos que salen desde código
+- `usuario_id`: desde `req.user.id` (JWT)
+- `plan_id`: desde body
+- `monto`: desde `plan_acceso.monto`
+- `estado`: `'pendiente'`
+
+## Importante
+- La respuesta `checkout_url` **no** confirma pago.
+- El estado se confirma por **webhook**.
+

@@ -1,0 +1,95 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Base de Datos — Modelo Relacional (Mercado Pago)
+
+## Objetivo
+Este modelo soporta:
+- Creación de órdenes internas (`orden_pago`) antes del checkout
+- Auditoría e idempotencia de pagos Mercado Pago (`pago_mercadopago`)
+- Activación de suscripción (`suscripcion`) cuando el pago queda `approved`
+- Gestión de planes (`plan_acceso`)
+
+## Diagrama ER (Mermaid)
+
+```mermaid
+erDiagram
+  USUARIO {
+        uuid id_usuario PK
+  }
+
+  PLAN_ACCESO {
+        uuid id_plan PK
+    varchar codigo UK
+    varchar nombre
+    text descripcion
+    numeric monto
+    varchar moneda
+    boolean acceso_web
+    boolean acceso_app
+    boolean activo
+    timestamp created_at
+  }
+
+  ORDEN_PAGO {
+        uuid id_orden PK
+    uuid usuario_id FK
+    uuid plan_id FK
+    varchar estado
+    numeric monto
+    varchar moneda
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  PAGO_MERCADOPAGO {
+        uuid id_pago PK
+    uuid orden_id FK
+    bigint mp_payment_id UK
+    text mp_preference_id
+    varchar status
+    text status_detail
+    varchar payment_type
+    numeric transaction_amount
+    varchar currency
+    jsonb raw_response
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  SUSCRIPCION {
+        uuid id_suscripcion PK
+    uuid usuario_id FK
+    uuid plan_id FK
+    varchar estado
+    timestamp fecha_inicio
+    timestamp fecha_fin
+    timestamp fecha_renovacion
+    numeric monto
+    varchar moneda
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  USUARIO ||--o{ ORDEN_PAGO : \"crea\"
+  PLAN_ACCESO ||--o{ ORDEN_PAGO : \"plan\"
+  ORDEN_PAGO ||--o{ PAGO_MERCADOPAGO : \"pagos\"
+  USUARIO ||--|| SUSCRIPCION : \"suscripcion\"
+  PLAN_ACCESO ||--o{ SUSCRIPCION : \"plan\"
+```
+
+## Relaciones clave
+- `orden_pago.usuario_id` → `usuario.id_usuario`
+- `orden_pago.plan_id` → `plan_acceso.id_plan`
+- `pago_mercadopago.orden_id` → `orden_pago.id_orden`
+- `suscripcion.usuario_id` → `usuario.id_usuario` (**UNIQUE**: 1 suscripción por usuario)
+- `suscripcion.plan_id` → `plan_acceso.id_plan` (**FK recomendado y seguro en v1 con BD vacía**)
+
+## Constraints críticas
+- `pago_mercadopago.mp_payment_id` **UNIQUE** (idempotencia ante duplicados del webhook)
+- `suscripcion.usuario_id` **UNIQUE** (para soportar `ON CONFLICT (usuario_id)`)
+
+## Nota de coherencia con el código actual
+- El webhook asocia el pago a la orden mediante `pago.metadata.order_id`.
+- Por eso, el `orderId` que viene desde Mercado Pago debe corresponder a `orden_pago.id_orden`.
+

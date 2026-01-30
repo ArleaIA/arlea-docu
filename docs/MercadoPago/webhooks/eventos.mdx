@@ -1,0 +1,20 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Webhooks — Eventos
+
+## Qué se procesa aquí
+Lista de eventos que el backend consume desde Mercado Pago.
+
+## Matriz de eventos
+- `payment.*` → actualizar pago/orden
+- `subscription.*` → actualizar suscripción
+- `merchant_order.*` (si aplica) → conciliación
+
+## Qué debe incluir cada evento (mínimo)
+- ID externo (payment_id / subscription_id / merchant_order_id)
+- Tipo de evento
+- Fecha/hora de recepción
+
+## Resultado esperado
+- El backend actualiza estados internos y responde 200.

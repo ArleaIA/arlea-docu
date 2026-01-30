@@ -1,0 +1,125 @@
+# Diagrama de Flujo — Cancelar Suscripción del Usuario
+
+## Descripción
+
+Este diagrama representa el flujo del endpoint **POST /suscripcion/cancelar**, cuyo objetivo es permitir que un usuario autenticado cancele manualmente su suscripción activa.
+La operación es interna al sistema (pagos únicos) y se maneja de forma transaccional e idempotente.
+
+![Diagrama de Flujo — Cancelar Suscripción del Usuario](/img/cancelar-suscripcion.png)
+
+---
+
+## Endpoint
+
+```
+POST /suscripcion/cancelar
+```
+
+---
+
+## Componentes involucrados
+
+- Frontend
+- SuscripcionesController
+- JwtAuthGuard
+- SuscripcionesService
+- Base de Datos (PostgreSQL / Supabase)
+
+---
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud **POST /suscripcion/cancelar** incluyendo el token JWT en el header `Authorization`.
+2. El **JwtAuthGuard** intercepta la request y valida el token.
+3. Si el token es inválido, el sistema responde con **401 Unauthorized**.
+4. Si el token es válido, el **SuscripcionesController** inicia la operación de cancelación.
+5. El **SuscripcionesService** inicia una transacción en la base de datos.
+6. Se obtiene y bloquea (`FOR UPDATE`) la suscripción más reciente del usuario.
+7. Si el usuario no posee una suscripción, se responde con **400 Bad Request**.
+8. Si existe una suscripción:
+   - Si el estado es **activa**, se actualiza el estado a **cancelled** y se corta el acceso.
+   - Si el estado no es **activa**, la operación se considera idempotente.
+9. La transacción se confirma (`COMMIT`).
+10. El sistema responde con **200 OK**.
+
+---
+
+## Inputs esperados
+
+### Headers
+
+```http
+Authorization: Bearer <JWT>
+```
+
+### Params
+
+_No aplica_
+
+### Body
+
+_No aplica_
+
+---
+
+## Respuestas posibles
+
+### ✅ 200 OK — Suscripción cancelada o idempotente
+
+```json
+{
+      \"ok\": true
+}
+```
+
+---
+
+### ❌ 400 Bad Request — Usuario sin suscripción
+
+```json
+{
+      \"statusCode\": 400,
+  \"message\": \"No hay suscripción activa\"
+}
+```
+
+---
+
+### ❌ 401 Unauthorized — Token inválido o ausente
+
+```json
+{
+      \"statusCode\": 401,
+  \"message\": \"Unauthorized\"
+}
+```
+
+---
+
+### ❌ 500 Internal Server Error
+
+```json
+{
+      \"statusCode\": 500,
+  \"message\": \"Internal server error\"
+}
+```
+
+---
+
+## Consideraciones técnicas
+
+- El endpoint requiere autenticación mediante JWT.
+- La cancelación no interactúa con proveedores de pago.
+- La operación es transaccional y utiliza bloqueo de fila para evitar condiciones de carrera.
+- El endpoint es idempotente: múltiples llamadas no generan efectos secundarios.
+- El acceso se corta inmediatamente al cambiar el estado a `cancelled`.
+
+---
+
+## Observaciones
+
+- Este flujo no genera reembolsos.
+- La expiración automática por tiempo se maneja mediante un CRON independiente.
+- La lógica de negocio se mantiene fuera del controller.
+- Compatible con pagos únicos y futuras extensiones del sistema de suscripciones.

@@ -1,0 +1,53 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Errores — Mercado Pago
+
+> Catálogo único de errores del módulo.
+
+## Errores comunes
+
+### 400 — Plan inválido
+```json
+{
+      "statusCode": 400,
+  "message": "Plan inválido",
+  "code": "MP_PLAN_INVALID"
+}
+```
+
+### 400 — Monto inválido
+```json
+{
+      "statusCode": 400,
+  "message": "Monto inválido",
+  "code": "MP_AMOUNT_INVALID"
+}
+```
+
+### 401 — Falta token
+```json
+{
+      "statusCode": 401,
+  "message": "Falta token de autenticación",
+  "code": "MP_AUTH_MISSING"
+}
+```
+
+### 401 — Token inválido/expirado
+```json
+{
+      "statusCode": 401,
+  "message": "Token del backend inválido o expirado",
+  "code": "MP_AUTH_INVALID"
+}
+```
+
+### 500 — Error interno
+```json
+{
+      "statusCode": 500,
+  "message": "Error interno del servidor",
+  "code": "MP_INTERNAL_ERROR"
+}
+```

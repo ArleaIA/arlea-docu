@@ -1,0 +1,25 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Checklist — Producción Mercado Pago
+
+## Configuración
+- Webhook URL pública configurada
+- Variables de entorno definidas (token/secret)
+- Logs habilitados
+
+## Seguridad
+- Idempotencia con unique constraint
+- Handler tolerante a duplicados
+
+## Pruebas
+- Pago exitoso
+- Pago fallido
+- Webhook duplicado
+- Webhook tardío
+
+## Observabilidad
+- Correlación por `event_id` / `payment_id`
+- Alertas ante 5xx repetidos
+
+ 

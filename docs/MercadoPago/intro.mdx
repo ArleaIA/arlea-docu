@@ -1,0 +1,41 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Mercado Pago — Introducción
+
+## Qué resuelve este módulo
+
+Este módulo permite a un usuario autenticado:
+- Iniciar un checkout de suscripción
+- Crear una orden de pago interna (`orden_pago`)
+- Redirigir al checkout oficial de Mercado Pago (Checkout Pro)
+- Confirmar el resultado **vía webhook**
+
+## Principios de seguridad (no negociables)
+- El usuario **siempre** se obtiene desde el **JWT** (backend)
+- El frontend **nunca** envía `usuarioId`
+- El webhook **no** usa JWT
+- La relación `usuario ↔ orden` se persiste **antes** del redirect
+
+## Requisitos del módulo (según código)
+- `MercadoPagoService` usa `ConfigService`.
+- Por lo tanto, la aplicación debe tener `ConfigModule` habilitado (idealmente global en `AppModule`).
+
+## Variables de entorno usadas
+- `MP_ACCESS_TOKEN` (obligatoria)
+- `MP_WEBHOOK_URL` (obligatoria)
+
+## Notas de implementación (según el código actual)
+- `back_urls` están hardcodeadas en el service a:
+  - `http://localhost:5173/pago/success`
+  - `http://localhost:5173/pago/failure`
+  - `http://localhost:5173/pago/pending`
+- `auto_return` está comentado (desactivado en código).
+
+## Fuente de verdad
+- El redirect **NO** confirma pago.
+- La confirmación real y activación de suscripción ocurre por **Webhook + DB**.
+
+## Flujo de operaciones
+
+![Diagrama de Flujo — Mercado Pago](/img/flujomercadopago.png)

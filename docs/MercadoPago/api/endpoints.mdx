@@ -1,0 +1,110 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Endpoints — Mercado Pago
+
+## POST /pagos/checkout
+
+Crea una orden interna (`orden_pago`) y genera la preferencia en Mercado Pago, retornando el `checkout_url`.
+
+### Request
+**Headers obligatorios**
+- Authorization: `Bearer <token_backend>`
+- Content-Type: `application/json`
+
+**Body**
+```json
+{
+    "plan_id": "uuid"
+}
+```
+
+### Response
+<Tabs>
+  <TabItem value="200" label="200">
+
+```json
+{
+    "checkout_url": "https://www.mercadopago.cl/checkout/v1/redirect?pref_id=..."
+}
+```
+
+  </TabItem>
+
+  <TabItem value="400" label="400">
+
+```json
+{
+    "statusCode": 400,
+  "message": "Plan inválido",
+  "error": "Bad Request"
+}
+```
+o puede ser:
+```json
+{
+    "statusCode": 400,
+  "message": "Monto inválido",
+  "error": "Bad Request"
+}
+```
+
+  </TabItem>
+
+  <TabItem value="401" label="401">
+
+```json
+{
+    "statusCode": 401,
+  "message": "Unauthorized",
+  "error": "Unauthorized"
+}
+```
+
+  </TabItem>
+
+  <TabItem value="500" label="500">
+
+```json
+{
+    "statusCode": 500,
+  "message": "Internal Server Error"
+}
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## POST /mercadopago/webhook
+
+Webhook que recibe notificaciones de Mercado Pago. **No requiere JWT**.
+
+### Request
+- No requiere headers especiales en el código actual.
+- El handler espera `body.data.id`.
+
+**Body mínimo esperado**
+```json
+{
+    "data": {
+      "id": 123456789
+  }
+}
+```
+
+### Response
+- El código actual responde **HTTP 200** y **sin body** (respuesta vacía).
+
+<Tabs>
+  <TabItem value="200" label="200">
+
+```json
+
+```
+
+  </TabItem>
+</Tabs>
+
+    

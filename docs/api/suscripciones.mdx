@@ -1,0 +1,163 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Endpoints — Suscripciones
+
+- Para obtener Planes activos
+
+## GET /suscripcion/planes
+
+### Request
+
+- No requiere
+
+### Response
+
+<Tabs>
+  <TabItem value="200" label="200">
+    ```json
+    [
+        {
+            "id_plan":"uuid",
+            "codigo":"premium_mensual",
+            "nombre":"Plan Premium",
+            "descripcion":"Acceso completo",
+            "monto":1500,
+            "moneda":"CLP",
+            "acceso_web":true,
+            "acceso_app":true
+        }
+    ]
+    ```
+  </TabItem>
+
+  <TabItem value="500" label="404 / 500">
+
+    ```json
+    {
+      "statusCode": 500,
+      "message": "Error obteniendo Planes"
+    }
+    ```
+  </TabItem>
+</Tabs>
+## GET /suscripcion/me
+
+- Para obtener una suscripcion activa de un usuario 
+
+### Request
+**Headers obligatorios**
+- Authorization: `Bearer <token_backend>`
+
+
+### Response
+
+<Tabs>
+  <TabItem value="200" label="200">
+
+    ```json
+    {
+        "id_suscripcion": "uuid",
+        "estado": "activa",
+        "fecha_inicio": "2026-01-01T00:00:00.000Z",
+        "fecha_fin": "2026-02-01T00:00:00.000Z",
+        "monto": 1500,
+        "moneda": "CLP",
+        "id_plan": "uuid",
+        "codigo": "premium_mensual",
+        "nombre": "Plan Premium",
+        "descripcion": "Acceso completo",
+        "acceso_web": true,
+        "acceso_app": true
+    }
+
+    ```
+  </TabItem>
+     <TabItem value="401" label="401">
+#### Error del backend: JWT inválido
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+
+```
+</TabItem>
+  <TabItem value="404" label="404">
+#### Error del backend: Usuario sin suscripcion activa
+
+    ```json
+    {
+      "statusCode": 404,
+      "message": "Usuario sin suscripcion activa"
+    }
+    ```
+  </TabItem>
+  <TabItem value="500" label="500">
+#### Error del backend
+    ```json
+    {
+      "statusCode": 500,
+      "message": "Internal Error Server"
+    }
+    ```
+  </TabItem>
+</Tabs>
+## POST /suscripcion/cancelar
+
+### Request
+**Headers obligatorios**
+- Authorization: `Bearer <token_backend>`
+
+---
+
+### Response
+
+<Tabs>
+  <TabItem value="200" label="200">
+
+    ```json
+    {
+      "ok": true
+    }
+
+    ```
+  </TabItem>
+  <TabItem value="400" label="400">
+    ```json
+    {
+      "statusCode": 400,
+      "message": Usuario no autenticado"
+    }
+    ```
+  </TabItem>
+  <TabItem value="401" label="401">
+#### Error del backend: JWT inválido
+
+    ```json
+    {
+      "statusCode": 401,
+      "message": Unauthorized"
+    }
+    ```
+  </TabItem>
+  <TabItem value="500" label="500">
+    ```json
+    {
+      "statusCode": 500,
+      "message": Internal Error Server"
+    }
+    ```
+  </TabItem>
+</Tabs>
+## CRON
+
+Cada hora se ejecuta para el limpiar la tabla de suscripcion limpiando toda suscripcion activa que ya este vencida cambiandolo su estado a expired
+
+![Diagrama de Fujo](/img/CRON-suscripciones.png)
+
+## GUARD
+
+Se agrego un guard que verifica que el usuario tenga suscripcion
+
+![Diagrama de Fujo](/img/Guard-suscripcion.png)

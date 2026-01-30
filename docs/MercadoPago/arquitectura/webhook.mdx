@@ -1,0 +1,50 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Arquitectura — Flujo de Webhook
+
+## Objetivo
+Confirmar pagos consultando el pago real en Mercado Pago y, si está `approved`, activar suscripción.
+
+## Input esperado 
+El handler lee:
+- `paymentId = body?.data?.id`
+
+Ejemplo:
+```json
+{
+      "data": {
+        "id": 123456789
+  }
+}
+```
+
+## Pasos 
+1. Recibe webhook (`POST /mercadopago/webhook`)
+2. Extrae `paymentId` desde `body.data.id`
+3. Llama a Mercado Pago: `GET /v1/payments/{paymentId}` usando `MP_ACCESS_TOKEN`
+4. Obtiene `orderId` **solo** desde: `pago.metadata.order_id`
+5. Inicia transacción DB
+6. Idempotencia: si existe `pago_mercadopago.mp_payment_id = pago.id` → no reprocesa
+7. Inserta `pago_mercadopago` con `raw_response`
+8. Si `pago.status === 'approved'`:
+   - actualiza `orden_pago.estado = 'pagado'`
+   - inserta/upsertea `suscripcion` con:
+     - `estado = 'activa'`
+     - `fecha_renovacion = now() + interval '30 days'`
+     - en conflicto por `usuario_id` actualiza **plan_id**, **estado**, **fecha_renovacion** (no actualiza monto)
+
+## Respuesta
+- El código actual usa `@HttpCode(200)` y retorna una respuesta vacía (sin body).
+
+<Tabs>
+  <TabItem value="200" label="200">
+
+```json
+
+```
+
+  </TabItem>
+</Tabs>
+
+    

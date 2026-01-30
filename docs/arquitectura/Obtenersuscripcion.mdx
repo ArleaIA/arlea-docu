@@ -1,0 +1,49 @@
+# Diagrama de Flujo — Obtener Suscripción del Usuario
+
+## Descripción
+
+Este diagrama representa el flujo del endpoint **GET /suscripcion/mia**, cuyo objetivo es obtener la suscripción asociada a un usuario autenticado.
+El flujo valida la autenticación mediante JWT y consulta la base de datos para determinar si el usuario posee una suscripción.
+
+![Diagrama de Flujo — Obtener Suscripción del Usuario](/img/flujo-de-suscripcion-de-un-usuario.png)
+
+
+---
+
+## Componentes involucrados
+
+- Frontend
+- SuscripcionesController
+- JwtAuthGuard
+- SuscripcionesService
+- Base de Datos (PostgreSQL / Supabase)
+
+---
+
+## Flujo / Comportamiento
+
+1. El Frontend envía una solicitud **GET /suscripcion/mia** incluyendo el token JWT en el header `Authorization`.
+2. El **JwtAuthGuard** intercepta la request y valida el token.
+3. Si el token es inválido, el sistema responde con **401 Unauthorized**.
+4. Si el token es válido, el **SuscripcionesController** delega la operación al **SuscripcionesService**.
+5. El **SuscripcionesService** consulta la base de datos para buscar la suscripción asociada al usuario.
+6. Si no existe una suscripción, se responde con **404 Not Found**.
+7. Si existe una suscripción, se retornan los datos de la suscripción junto con la información del plan asociado.
+
+---
+
+## Consideraciones técnicas
+
+- El endpoint requiere autenticación mediante JWT.
+- La lógica de negocio se encuentra encapsulada en el service.
+- La base de datos es la única fuente de verdad del estado de la suscripción.
+- Compatible con pagos únicos y expiración por fecha.
+
+---
+
+## Observaciones
+
+- Este flujo sirve como base para los guards de acceso por plan.
+- Puede extenderse para incluir permisos por feature.
+- No depende directamente de Mercado Pago.
+

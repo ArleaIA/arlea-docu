@@ -23,12 +23,12 @@ import TabItem from '@theme/TabItem';
 
     ```json
     {
-      "page": 1,
+        "page": 1,
       "limit": 20,
       "total": 2,
       "data": [
-        {
-          "id_producto": "0267dc06-851f-4675-afe4-a33269714945",
+          {
+            "id_producto": "0267dc06-851f-4675-afe4-a33269714945",
           "nombre": "Labial Matte SuperStay",
           "imagen_producto": "https://...",
           "tipo": "Labios",
@@ -36,7 +36,7 @@ import TabItem from '@theme/TabItem';
           "colores": ["#b23a48", "#8c1d18"]
         },
         {
-          "id_producto": "43375f61-92cd-4b4f-8481-fb78ad95ee4b",
+            "id_producto": "43375f61-92cd-4b4f-8481-fb78ad95ee4b",
           "nombre": "Labial Vinyl Ink",
           "imagen_producto": "https://...",
           "tipo": "Labios",
@@ -53,12 +53,13 @@ import TabItem from '@theme/TabItem';
 
     ```json
     {
-      "statusCode": 500,
+        "statusCode": 500,
       "message": "Error obteniendo productos"
     }
     ```
   </TabItem>
 </Tabs>
+
 ## GET /producto/:id
 
 ### Request
@@ -72,28 +73,56 @@ import TabItem from '@theme/TabItem';
 
 <Tabs>
   <TabItem value="200" label="200">
-    <p><strong>Detalle completo del producto con precios por tienda</strong></p>
+    <p><strong>Detalle completo del producto con precios por tienda con un historial de precio</strong></p>
 
     ```json
     {
-      "nombre": "Labial Matte SuperStay",
-      "marca": "Maybelline",
-      "categoria": "Labios",
-      "url_imagen": "https://...",
-      "colores": ["#b23a48", "#8c1d18"],
+        "id_producto": "11111111-2222-3333-4444-555555555555",
+      "nombre": "Base Líquida Fit Me Matte + Poreless",
       "precio": [
-        {
-          "tienda": "DBS",
-          "url_producto_tienda": "https://...",
-          "valor": 9990,
-          "valor_descuento": 7990
+          {
+            "tienda": "Place A",
+          "url_producto_tienda": "https://dbs.cl/producto/fit-me-base",
+          "valor": 11990,
+          "valor_descuento": 9990
         },
         {
-          "tienda": "Preunic",
-          "url_producto_tienda": "https://...",
-          "valor": 10490,
+            "tienda": "Place B",
+          "url_producto_tienda": "https://preunic.cl/producto/base-fit-me",
+          "valor": 11490,
           "valor_descuento": null
+        },
+        {
+            "tienda": "Place C",
+          "url_producto_tienda": "https://falabella.com/base-fit-me",
+          "valor": 12990,
+          "valor_descuento": 10990
         }
+      ],
+      "historial_precios": [
+          {
+            "fecha": "2026-01-01T10:00:00",
+          "precio_normal": 12990,
+          "precio_oferta": null
+        },
+        {
+            "fecha": "2026-01-03T10:00:00",
+          "precio_normal": 12490,
+          "precio_oferta": 10990
+        },
+        {
+            "fecha": "2026-01-05T10:00:00",
+          "precio_normal": 11990,
+          "precio_oferta": 9990
+        }
+      ],
+      "marca": "Maybelline",
+      "url_imagen": "https://imagenes.placeholder.com/fitme.png",
+      "categoria": "maquillaje",
+      "colores": [
+          "120 Classic Ivory",
+        "220 Natural Beige",
+        "310 Sun Beige"
       ]
     }
     ```
@@ -104,13 +133,109 @@ import TabItem from '@theme/TabItem';
 
     ```json
     {
-      "statusCode": 404,
+        "statusCode": 404,
       "message": "Producto no encontrado",
       "error": "Not Found"
     }
     ```
   </TabItem>
 </Tabs>
+
+---
+
+## Historial de precios del producto
+
+Este apartado documenta el comportamiento del endpoint `GET /producto/:id`
+cuando se utilizan parámetros de fecha para consultar la evolución histórica
+del precio de un producto. Representado por el siguiente diagrama de flujo:
+
+
+![Diagrama de Flujo — Historial de precios del producto](/img/Historial-precio.png)
+---
+
+### Endpoint
+
+```
+GET /producto/:id
+```
+
+### Query Params (opcional)
+- `fecha_inicio` (string, YYYY-MM-DD) → fecha inicial del rango
+- `fecha_final` (string, YYYY-MM-DD) → fecha final del rango
+
+---
+
+### Comportamiento
+
+####  Sin parámetros de fecha
+- Retorna el detalle completo del producto
+- Incluye precios actuales por tienda
+- Puede incluir un historial resumido
+
+####  Con parámetros de fecha
+- Retorna el historial de precios dentro del rango solicitado
+- El precio corresponde al **mínimo agregado entre todas las tiendas** por fecha
+- Pensado para gráficos y análisis temporal
+
+---
+
+### Response — Historial de precios
+
+<Tabs>
+  <TabItem value="200" label="200">
+    <p><strong>Historial de precios obtenido correctamente</strong></p>
+
+    ```json
+    {
+      "producto_id": "11111111-2222-3333-4444-555555555555",
+      "moneda": "CLP",
+      "rango": 
+      {
+        "desde": "2026-01-01",
+        "hasta": "2026-01-10"
+      },
+      "historial": 
+      [
+          {
+            "fecha": "2026-01-01",
+            "precio_normal": 12990,
+            "precio_oferta": null
+          },
+          {
+            "fecha": "2026-01-03",
+            "precio_normal": 12490,
+            "precio_oferta": 10990
+          },
+          {
+            "fecha": "2026-01-05",
+            "precio_normal": 11990,
+            "precio_oferta": 9990
+          }
+      ]
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="400" label="400">
+    <p><strong>Rango de fechas inválido</strong></p>
+
+    ```json
+    {
+      "statusCode": 400,
+      "message": "Rango de fechas inválido"
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+### Consideraciones
+- El historial se genera mediante procesos automáticos (worker / triggers)
+- Se guarda un snapshot por fecha incluso si el precio no cambia
+- El valor retornado representa el **precio mínimo entre todas las tiendas**
+- No debe confundirse con el precio actual del producto
+
 ## GET /producto/metadata/categorias
 
 ### Request
@@ -126,7 +251,7 @@ No requiere
 
     ```json
     [
-      "Rostro",
+        "Rostro",
       "Ojos",
       "Labios",
       "Uñas",
@@ -135,6 +260,7 @@ No requiere
     ```
   </TabItem>
 </Tabs>
+
 ## GET /producto/metadata/marcas
 
 ### Request
@@ -150,7 +276,7 @@ No requiere
 
     ```json
     [
-      "Maybelline",
+        "Maybelline",
       "L'Oréal",
       "Revlon",
       "MAC",
@@ -159,3 +285,4 @@ No requiere
     ```
   </TabItem>
 </Tabs>
+

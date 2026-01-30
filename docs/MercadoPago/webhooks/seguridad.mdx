@@ -1,0 +1,20 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Webhooks — Seguridad e Idempotencia
+
+## Principios
+- Webhook **no usa JWT**.
+- No confiar en redirect ni en frontend.
+
+## Idempotencia
+- Se debe evitar reprocesar un mismo evento.
+- Recomendado: guardar `event_id` o `payment_id/subscription_id` con unique constraint.
+
+## Reintentos
+- Mercado Pago puede reintentar si devuelves 5xx.
+- Tu handler debe ser seguro para reintentos.
+
+## Buenas prácticas
+- Logs con `event_id` + `order_id` interno.
+- Validación de firma/token si está disponible en tu configuración.

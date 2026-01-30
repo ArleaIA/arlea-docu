@@ -1,0 +1,259 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Base de Datos — Tablas, Estados y Operaciones
+
+## Tablas
+
+### `plan_acceso`
+Planes disponibles para contratar.
+
+**Campos relevantes**
+- `id_plan` (PK)
+- `codigo` (UNIQUE)
+- `nombre`, `descripcion`
+- `monto`, `moneda`
+- `acceso_web`, `acceso_app`
+- `activo`
+
+---
+
+### `orden_pago`
+Orden interna creada **antes** de redirigir a Mercado Pago.
+
+**Campos relevantes**
+- `id_orden` (PK)
+- `usuario_id` (FK → usuario)
+- `plan_id` (FK → plan_acceso)
+- `estado` (default `pendiente`)
+- `monto`, `moneda`
+- `created_at`, `updated_at`
+
+**Estados**
+- `pendiente`
+- `pagado`
+- `rechazado`
+- `cancelado`
+- `expirado`
+
+> Nota: el código actual marca `pagado` solo cuando el pago consultado queda `approved`.
+
+---
+
+### `pago_mercadopago`
+Auditoría del pago real consultado en Mercado Pago + soporte de idempotencia.
+
+**Campos relevantes**
+- `id_pago` (PK)
+- `orden_id` (FK → orden_pago)
+- `mp_payment_id` (UNIQUE)
+- `mp_preference_id` (opcional para auditoría)
+- `status`, `status_detail`
+- `payment_type`
+- `transaction_amount`, `currency`
+- `raw_response` (JSONB completo)
+- `created_at`, `updated_at`
+
+**Estados típicos Mercado Pago**
+- `approved`
+- `rejected`
+- `pending`
+- `refunded`
+- `cancelled`
+
+---
+
+### `suscripcion`
+Estado de suscripción del usuario.
+
+**Campos relevantes**
+- `id_suscripcion` (PK)
+- `usuario_id` (FK → usuario) **UNIQUE**
+- `plan_id` (FK → plan_acceso)
+- `estado` (default `activa`)
+- `fecha_inicio`, `fecha_fin`, `fecha_renovacion`
+- `monto`, `moneda`
+- `created_at`, `updated_at`
+
+**Estados**
+- `activa`
+- `pausada`
+- `cancelada`
+- `expirada`
+
+> Nota de coherencia con el código actual: el webhook deja `estado = 'activa'` y setea `fecha_renovacion = now() + interval '30 days'`.
+
+---
+
+## Operaciones críticas (flujo real)
+
+### 1) Checkout → crear `orden_pago`
+Se inserta antes de crear la preferencia MP:
+
+```sql
+INSERT INTO orden_pago (
+      usuario_id,
+  plan_id,
+  monto,
+  estado
+) VALUES (
+      <usuario_id_from_jwt>,
+  <plan_id>,
+  <monto_plan>,
+  'pendiente'
+)
+RETURNING id_orden;
+```
+
+### 2) Webhook → idempotencia + auditoría (`pago_mercadopago`)
+El webhook consulta el pago real y guarda un registro único por `mp_payment_id`:
+
+```sql
+-- Idempotencia (lectura)
+SELECT 1
+FROM pago_mercadopago
+WHERE mp_payment_id = $1;
+
+-- Inserción auditoría
+INSERT INTO pago_mercadopago (
+      orden_id,
+  mp_payment_id,
+  status,
+  status_detail,
+  payment_type,
+  transaction_amount,
+  raw_response
+) VALUES ($1,$2,$3,$4,$5,$6,$7);
+```
+
+### 3) Webhook (approved) → actualizar `orden_pago` + upsert `suscripcion`
+
+```sql
+-- Marcar orden como pagada
+UPDATE orden_pago
+SET estado = 'pagado'
+WHERE id_orden = $1
+RETURNING usuario_id, plan_id, monto;
+
+-- Upsert de suscripción (requiere UNIQUE(usuario_id))
+INSERT INTO suscripcion (
+      usuario_id,
+  plan_id,
+  monto,
+  estado,
+  fecha_renovacion
+) VALUES ($1,$2,$3,'activa', now() + interval '30 days')
+ON CONFLICT (usuario_id)
+DO UPDATE SET
+  plan_id = EXCLUDED.plan_id,
+  estado = 'activa',
+  fecha_renovacion = EXCLUDED.fecha_renovacion;
+```
+
+> Nota: en el `DO UPDATE` el código **no actualiza `monto`**.
+
+---
+
+## Migración inicial (v1)
+
+<Tabs>
+  <TabItem value="create_tables" label="Crear tablas">
+
+```sql
+CREATE TABLE orden_pago (
+      id_orden UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+  estado VARCHAR(30) NOT NULL DEFAULT 'pendiente',
+  monto NUMERIC(10,2) NOT NULL,
+  moneda VARCHAR(10) NOT NULL DEFAULT 'CLP',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  plan_id UUID
+);
+
+CREATE TABLE pago_mercadopago (
+      id_pago UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  orden_id UUID NOT NULL REFERENCES orden_pago(id_orden) ON DELETE CASCADE,
+  mp_payment_id BIGINT UNIQUE,
+  mp_preference_id TEXT,
+  status VARCHAR(30),
+  status_detail TEXT,
+  payment_type VARCHAR(30),
+  transaction_amount NUMERIC(10,2),
+  currency VARCHAR(10) DEFAULT 'CLP',
+  raw_response JSONB,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE suscripcion (
+      id_suscripcion UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+  plan_id UUID,
+  estado VARCHAR(30) NOT NULL DEFAULT 'activa',
+  fecha_inicio TIMESTAMP DEFAULT NOW(),
+  fecha_fin TIMESTAMP,
+  fecha_renovacion TIMESTAMP,
+  monto NUMERIC(10,2) NOT NULL,
+  moneda VARCHAR(10) DEFAULT 'CLP',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE plan_acceso (
+      id_plan UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  codigo VARCHAR(50) UNIQUE NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  descripcion TEXT,
+  monto NUMERIC(10,2) NOT NULL,
+  moneda VARCHAR(10) DEFAULT 'CLP',
+  acceso_web BOOLEAN DEFAULT TRUE,
+  acceso_app BOOLEAN DEFAULT FALSE,
+  activo BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+  </TabItem>
+
+  <TabItem value="constraints" label="Constraints">
+
+```sql
+-- FK orden_pago.plan_id -> plan_acceso
+ALTER TABLE orden_pago
+ADD CONSTRAINT fk_orden_plan
+FOREIGN KEY (plan_id)
+REFERENCES plan_acceso(id_plan);
+
+-- UNIQUE suscripcion.usuario_id (para ON CONFLICT)
+ALTER TABLE suscripcion
+ADD CONSTRAINT suscripcion_usuario_id_unique
+UNIQUE (usuario_id);
+
+-- FK suscripcion.plan_id -> plan_acceso (seguro en v1 con BD vacía)
+ALTER TABLE suscripcion
+ADD CONSTRAINT fk_suscripcion_plan
+FOREIGN KEY (plan_id)
+REFERENCES plan_acceso(id_plan)
+ON DELETE SET NULL;
+
+-- Idempotencia reforzada (además del UNIQUE ya definido)
+ALTER TABLE pago_mercadopago
+ADD CONSTRAINT pago_mercadopago_mp_payment_id_unique
+UNIQUE (mp_payment_id);
+```
+
+  </TabItem>
+
+  <TabItem value="seed" label="Seed planes">
+
+```sql
+INSERT INTO plan_acceso (codigo, nombre, monto, acceso_web, acceso_app, activo)
+VALUES
+  ('web', 'Acceso Web', 2990, true, false, true),
+  ('web_app', 'Acceso Web + App', 6990, true, true, true);
+```
+
+  </TabItem>
+</Tabs>
+

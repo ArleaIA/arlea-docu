@@ -1,0 +1,24 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Mercadob Pago — Arquitectura (Flujo General)
+## Componentes involucrados
+- Frontend (App/Web)
+- API Backend (NestJS)
+- Mercado Pago (Checkout)
+- Webhook Mercado Pago
+- Base de datos (PostgreSQL)
+## Flujo general
+1. Frontend llama al backend con `Authorization: Bearer <JWT_BACKEND>`
+2. Backend valida JWT y obtiene `usuarioId`
+3. Backend valida plan, crea `orden_pago` en DB (estado `pendiente`)
+4. Backend crea preferencia en Mercado Pago
+5. Backend retorna `checkout_url`
+6. Usuario completa pago en Mercado Pago
+7. Mercado Pago notifica al backend por Webhook
+8. Backend valida, aplica idempotencia y actualiza estados en DB
+
+## Notas clave
+- El Frontend **solo inicia** el flujo (no confirma).
+- El Webhook es **asincrónico** y puede llegar tarde o repetido.
+    

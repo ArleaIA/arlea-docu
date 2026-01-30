@@ -1,0 +1,26 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Estados — Ordenes y Suscripciones
+
+## Estados canónicos
+### orden_pago
+- `pendiente`
+- `pagado`
+- `fallido`
+- `cancelado`
+
+### suscripcion
+- `activa`
+- `cancelada`
+- `vencida`
+- `expired`
+
+## Fuente de cambios
+- Checkout crea `pendiente`
+- Webhook confirma y cambia estados
+
+## UI recomendada
+- `pendiente` → "Procesando"
+- `pagado/activa` → "Premium"
+- `expired/vencida` → "Renovar"

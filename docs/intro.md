@@ -34,6 +34,7 @@ Bienvenido a la documentación técnica oficial del proyecto **Arlea**.
 - [Productos](api/productos.mdx)
 - [Cosmetiquero](api/cosmetiquero.mdx)
 - [Influencer](api/influencer.mdx)
+- [Suscripciones](api/suscripciones.mdx)
 
 ### 4. Worker
 - [Arquitectura del Worker](workers/arquitectura.md)
@@ -46,3 +47,27 @@ Bienvenido a la documentación técnica oficial del proyecto **Arlea**.
 - [Diagrama de Secuencia — Confirmación de Usuario](BaseDeDatos/confirmarusuario.md)
 - [Diagrama de Secuencia — Actualización Automática de Timestamp en Producto](BaseDeDatos/timestampProducto.md)
 - [Diagrama de Secuencia — RPC obtener_tipos_producto()](BaseDeDatos/obtenerProductos.md)
+
+### 6. Mercado Pago
+
+### [Introducción](MercadoPago/intro.mdx)
+
+### Arquitectura
+  - [Flujo general](MercadoPago/arquitectura/flujoGeneral.mdx)
+  - [Checkout](MercadoPago/arquitectura/Checkout.mdx)
+
+### Webhooks
+  - [Concepto](MercadoPago/arquitectura/webhook.mdx)
+  - [Eventos](MercadoPago/webhooks/eventos.mdx)
+
+### API
+  - [Endpoints](MercadoPago/api/endpoints.mdx)
+  - [Errores](MercadoPago/api/errores.mdx)
+
+### Base de Datos
+  - [Modelo relacional](MercadoPago/BaseDeDatos/modelo-relacional.mdx)
+  - [Tablas](MercadoPago/BaseDeDatos/tablas.mdx)
+
+- [Seguridad](MercadoPago/seguridad.mdx)
+- [Estados](MercadoPago/estados.mdx)
+- [Checkout en Producción](MercadoPago/checkoutProduccion.mdx)
